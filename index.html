@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAA-C03 Complete Memory Palace</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #06090f;
+    --bg-card: #0c1219;
+    --bg-hover: #111a24;
+    --border: #1a2636;
+    --border-light: #243447;
+    --text: #c8d6e5;
+    --text-dim: #6b7f95;
+    --text-bright: #e8f0f8;
+    --accent: #f59e0b;
+    --accent-dim: #92610b;
+    --accent-glow: rgba(245,158,11,0.12);
+    --blue: #3b82f6;
+    --blue-dim: #1e3a5f;
+    --green: #22c55e;
+    --red: #ef4444;
+    --purple: #a78bfa;
+    --cyan: #22d3ee;
+    --pink: #f472b6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: #000; }
+
+  /* HEADER */
+  .hero {
+    position: relative;
+    padding: 60px 24px 44px;
+    text-align: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.08), transparent),
+      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(59,130,246,0.06), transparent);
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--text-dim); margin-top: 10px; font-size: 0.95rem; position: relative; }
+  .hero .badge {
+    display: inline-block; margin-top: 14px; padding: 5px 14px;
+    background: var(--accent-glow); border: 1px solid var(--accent-dim);
+    border-radius: 20px; font-size: 0.78rem; color: var(--accent);
+    font-family: 'JetBrains Mono', monospace; position: relative;
+  }
+
+  /* NAV */
+  .nav-wrap {
+    position: sticky; top: 0; z-index: 200;
+    background: rgba(6,9,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .nav {
+    display: flex; gap: 6px; overflow-x: auto; max-width: 1100px; margin: 0 auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav button {
+    flex-shrink: 0;
+    padding: 6px 14px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav button:hover { border-color: var(--border-light); color: var(--text); }
+  .nav button.on {
+    background: var(--accent); color: #000;
+    border-color: var(--accent); font-weight: 700;
+  }
+  .nav button[data-f="quiz"] { background: var(--blue-dim); color: var(--blue); border-color: var(--blue-dim); }
+  .nav button[data-f="quiz"].on { background: var(--blue); color: #fff; }
+
+  /* SEARCH */
+  .search-wrap {
+    max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
+  }
+  .search-wrap input {
+    width: 100%; padding: 10px 16px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-bright);
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem;
+    outline: none; transition: border 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--text-dim); }
+
+  /* CONTAINER */
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+  /* PROGRESS */
+  .progress-bar {
+    margin-bottom: 20px; padding: 14px 18px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    display: flex; align-items: center; gap: 14px; font-size: 0.82rem;
+  }
+  .progress-bar .track {
+    flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s;
+  }
+  .progress-bar .count { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+  /* MASTER STORY */
+  .master-story {
+    margin-bottom: 24px; padding: 22px;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-dim); border-radius: 12px;
+    position: relative; overflow: hidden;
+  }
+  .master-story::before {
+    content:''; position: absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .master-story h2 { color: var(--accent); font-size: 1.1rem; margin-bottom: 10px; }
+  .master-story p { color: var(--text); font-size: 0.88rem; line-height: 1.8; }
+  .master-story .hl { color: var(--accent); font-weight: 700; }
+
+  /* CATEGORY */
+  .cat-section {
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+  }
+  .cat-head {
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
+    transition: background 0.2s;
+  }
+  .cat-head:hover { background: var(--bg-hover); }
+  .cat-icon { font-size: 1.6rem; }
+  .cat-head h2 { font-size: 1.15rem; color: #fff; font-weight: 700; }
+  .cat-head .cnt {
+    margin-left: auto; font-size: 0.72rem; padding: 2px 10px;
+    background: var(--border); border-radius: 10px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cat-head .chevron {
+    color: var(--text-dim); transition: transform 0.2s; font-size: 1.2rem;
+  }
+  .cat-section.collapsed .cat-body { display: none; }
+  .cat-section.collapsed .chevron { transform: rotate(-90deg); }
+
+  /* SERVICE CARD */
+  .svc {
+    border-top: 1px solid var(--border);
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 14px;
+    transition: background 0.15s;
+  }
+  .svc:hover { background: var(--bg-hover); }
+  .svc-left {}
+  .svc-name {
+    font-weight: 700; font-size: 0.95rem; color: var(--accent);
+    line-height: 1.3;
+  }
+  .svc-abbr {
+    font-size: 0.72rem; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.04); padding: 1px 7px;
+    border-radius: 3px; display: inline-block; margin-top: 4px;
+  }
+  .svc-mastered {
+    margin-top: 8px; font-size: 0.72rem; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    color: var(--text-dim); transition: color 0.2s;
+  }
+  .svc-mastered:hover { color: var(--green); }
+  .svc-mastered.done { color: var(--green); }
+  .svc-mastered .check { width: 14px; height: 14px; border: 1.5px solid currentColor; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; }
+  .svc-mastered.done .check { background: var(--green); border-color: var(--green); color:#000; }
+
+  .func-box {
+    background: rgba(255,255,255,0.03); border-radius: 7px; padding: 10px 12px;
+    font-size: 0.85rem; color: var(--text); border-left: 3px solid var(--border-light);
+    margin-bottom: 8px;
+  }
+  .mem-box {
+    border-radius: 7px; padding: 10px 12px;
+    font-size: 0.85rem; border-left: 3px solid var(--accent);
+    background: rgba(245,158,11,0.05); margin-bottom: 6px;
+  }
+  .mem-box .lbl {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--accent); font-weight: 700; margin-bottom: 3px;
+  }
+  .mem-box .txt { color: #e8c882; }
+  .mem-box .txt strong { color: var(--accent); }
+
+  .story-box {
+    border-radius: 7px; padding: 10px 12px;
+    font-size: 0.85rem; border-left: 3px solid var(--blue);
+    background: rgba(59,130,246,0.05); margin-bottom: 6px;
+  }
+  .story-box .lbl {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--blue); font-weight: 700; margin-bottom: 3px;
+  }
+  .story-box .txt { color: #93c5fd; }
+
+  /* QUIZ */
+  .quiz-wrap {
+    display: none; padding: 20px 0;
+  }
+  .quiz-wrap.show { display: block; }
+  .quiz-header { margin-bottom: 20px; }
+  .quiz-header h2 { color: #fff; font-size: 1.3rem; }
+  .quiz-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 4px; }
+  .quiz-controls { display: flex; gap: 8px; margin: 14px 0; flex-wrap: wrap; }
+  .quiz-controls button, .qbtn {
+    padding: 8px 20px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text); cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; transition: all 0.15s;
+  }
+  .quiz-controls button:hover, .qbtn:hover { border-color: var(--blue); color: var(--blue); }
+  .qbtn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .quiz-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; margin-bottom: 12px;
+  }
+  .quiz-q { font-size: 0.95rem; color: var(--text-bright); margin-bottom: 12px; font-weight: 500; }
+  .quiz-q .qnum { color: var(--blue); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  .quiz-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .quiz-opt {
+    padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border);
+    background: transparent; color: var(--text); cursor: pointer;
+    font-size: 0.83rem; transition: all 0.15s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .quiz-opt:hover { border-color: var(--blue); }
+  .quiz-opt.right { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
+  .quiz-opt.wrong { background: rgba(239,68,68,0.15); border-color: var(--red); color: var(--red); }
+  .quiz-score-bar {
+    text-align: center; padding: 20px; font-size: 1.1rem; color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .svc { grid-template-columns: 1fr; }
+    .hero { padding: 40px 16px 30px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>SAA-C03 <span>Memory Palace</span></h1>
+  <p>Every AWS service on the Solutions Architect Associate exam — with mnemonics to remember them all</p>
+  <div class="badge">~130 services · 16 categories · Interactive quiz</div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav" id="nav"></div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Search any service (e.g. 'Lambda', 'encryption', 'CDN')...">
+</div>
+
+<div class="container">
+  <div class="progress-bar" id="progress-bar">
+    <span style="color:var(--text-dim)">Mastered:</span>
+    <div class="track"><div class="fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="count" id="prog-count">0 / 0</span>
+  </div>
+  <div id="content"></div>
+  <div class="quiz-wrap" id="quiz-wrap">
+    <div class="quiz-header">
+      <h2>🧪 Test Your Knowledge</h2>
+      <p>Random questions from all SAA-C03 services. Click an answer to check.</p>
+    </div>
+    <div class="quiz-controls">
+      <button onclick="startQuiz(10)">10 Questions</button>
+      <button onclick="startQuiz(25)">25 Questions</button>
+      <button onclick="startQuiz(50)">50 Questions</button>
+    </div>
+    <div id="quiz-area"></div>
+  </div>
+</div>
+
+<script>
+// ======== DATA ========
+const DATA = [
+  // ---- ANALYTICS ----
+  { cat:"Analytics", icon:"📊", name:"Amazon Athena", abbr:"Athena",
+    func:"Serverless interactive query service. Run SQL queries directly on data stored in S3 — no infrastructure to manage.",
+    mnemonic:"<strong>Athena the Goddess of Wisdom</strong> — she's wise enough to search through mountains of S3 data with a single SQL question, no server needed.",
+    story:"A librarian (Athena) can answer any question by reading books (S3 files) on the spot — no need to build a whole library system first. Pay per query." },
+  { cat:"Analytics", icon:"📊", name:"AWS Data Exchange", abbr:"Data Exchange",
+    func:"Find, subscribe to, and use third-party data in the cloud. A marketplace for data sets.",
+    mnemonic:"<strong>Data Farmers' Market</strong> — vendors (providers) set up stalls and you subscribe to buy fresh data sets delivered to your S3 bucket." },
+  { cat:"Analytics", icon:"📊", name:"AWS Data Pipeline", abbr:"Data Pipeline",
+    func:"Orchestrates and automates data movement and transformation between AWS services and on-premises sources.",
+    mnemonic:"<strong>Oil Pipeline for Data</strong> — crude data flows in one end, gets processed (transformed) at stations along the pipe, and clean data comes out the other end." },
+  { cat:"Analytics", icon:"📊", name:"Amazon EMR", abbr:"EMR",
+    func:"Managed big data platform using Apache Hadoop, Spark, etc. Process vast amounts of data across scalable EC2 clusters.",
+    mnemonic:"<strong>EMR = Enormous Map-Reduce</strong> — picture an enormous factory (cluster) where thousands of workers (nodes) each process a small piece of a massive job." },
+  { cat:"Analytics", icon:"📊", name:"AWS Glue", abbr:"Glue",
+    func:"Serverless ETL (Extract, Transform, Load) service. Discovers, catalogs, and prepares data for analytics.",
+    mnemonic:"<strong>Glue sticks data together</strong> — messy data from different sources? Glue extracts it, transforms it, and loads it into a neat catalog. It's the craft glue of your data workshop." },
+  { cat:"Analytics", icon:"📊", name:"Amazon Kinesis", abbr:"Kinesis",
+    func:"Real-time streaming data ingestion and processing. Handles video streams, data streams, analytics, and firehose delivery.",
+    mnemonic:"<strong>Kinesis = Kinetic energy = movement</strong> — data in motion. Picture a rushing river of live data (clicks, IoT, logs) that Kinesis catches in real time." },
+  { cat:"Analytics", icon:"📊", name:"AWS Lake Formation", abbr:"Lake Formation",
+    func:"Build, secure, and manage a data lake on S3 quickly. Simplifies data ingestion, cataloging, and access control.",
+    mnemonic:"<strong>Lake Builder</strong> — you want a data lake? Lake Formation is the construction crew that digs the lake (on S3), fills it with water (data), and puts up fences (security)." },
+  { cat:"Analytics", icon:"📊", name:"Amazon MSK", abbr:"MSK",
+    func:"Managed Apache Kafka. Fully managed streaming platform for building real-time data pipelines.",
+    mnemonic:"<strong>MSK = Managed Streaming Kafka</strong> — Kafka is the author (Franz Kafka) who writes endless streams of complex stories. MSK manages his publishing house so you don't have to." },
+  { cat:"Analytics", icon:"📊", name:"Amazon OpenSearch", abbr:"OpenSearch",
+    func:"Managed search and analytics engine (successor to Elasticsearch). Full-text search, log analytics, and dashboards.",
+    mnemonic:"<strong>Open the Search bar</strong> — like Google for your own data. Type a query, OpenSearch finds it in milliseconds across terabytes of logs." },
+  { cat:"Analytics", icon:"📊", name:"Amazon QuickSight", abbr:"QuickSight",
+    func:"Serverless BI (Business Intelligence) dashboard service. Create visualizations, reports, and share insights.",
+    mnemonic:"<strong>Quick + Sight = instant vision</strong> — put on magic glasses and instantly see charts and dashboards from your raw data. Serverless BI at a glance." },
+  { cat:"Analytics", icon:"📊", name:"Amazon Redshift", abbr:"Redshift",
+    func:"Petabyte-scale cloud data warehouse. Fast SQL analytics across massive structured datasets using columnar storage.",
+    mnemonic:"<strong>Red + Shift = astronomy term</strong> — when galaxies move apart, light shifts red. Redshift handles galaxy-sized data that's too big for normal databases. Think BIG warehouse." },
+
+  // ---- APPLICATION INTEGRATION ----
+  { cat:"App Integration", icon:"🔗", name:"Amazon AppFlow", abbr:"AppFlow",
+    func:"Securely transfer data between AWS and SaaS apps (Salesforce, Slack, etc.) without writing code.",
+    mnemonic:"<strong>App + Flow = data flowing between apps</strong> — a magic pipe connecting Salesforce to S3. Data flows automatically, no plumbing (code) needed." },
+  { cat:"App Integration", icon:"🔗", name:"AWS AppSync", abbr:"AppSync",
+    func:"Managed GraphQL API service. Syncs data in real time across mobile and web apps.",
+    mnemonic:"<strong>App + Sync = apps stay in sync</strong> — picture 100 phones all showing the same live scoreboard. AppSync keeps them perfectly synchronized via GraphQL." },
+  { cat:"App Integration", icon:"🔗", name:"Amazon EventBridge", abbr:"EventBridge",
+    func:"Serverless event bus. Routes events from your apps, SaaS, and AWS services to targets using rules.",
+    mnemonic:"<strong>A bridge for events</strong> — events from different kingdoms (services) cross the EventBridge to reach the right destination based on rules. Was CloudWatch Events." },
+  { cat:"App Integration", icon:"🔗", name:"Amazon MQ", abbr:"MQ",
+    func:"Managed message broker for Apache ActiveMQ and RabbitMQ. For migrating traditional messaging apps to the cloud.",
+    mnemonic:"<strong>MQ = Message Queue (traditional)</strong> — for old-school apps that already speak ActiveMQ/RabbitMQ. MQ is the translator that lets them move to AWS without rewriting code." },
+  { cat:"App Integration", icon:"🔗", name:"Amazon SNS", abbr:"SNS",
+    func:"Pub/sub notification service. Publishes messages to many subscribers: email, SMS, Lambda, SQS, mobile push.",
+    mnemonic:"<strong>SNS = Send News to Subscribers</strong> — a megaphone 📢 that shouts one message to many listeners at once. Pub/sub: publish once, many receive." },
+  { cat:"App Integration", icon:"🔗", name:"Amazon SQS", abbr:"SQS",
+    func:"Fully managed message queue. Decouples distributed system components. Reliable, scalable. Standard and FIFO queues.",
+    mnemonic:"<strong>SQS = Stand in the Queue, Sir</strong> — a polite post office. Messages line up and wait. Even if the receiver is busy, nothing gets lost. Decouples sender from receiver." },
+  { cat:"App Integration", icon:"🔗", name:"AWS Step Functions", abbr:"Step Functions",
+    func:"Orchestrates multi-step serverless workflows visually. Coordinates Lambda, ECS, and other services as state machines.",
+    mnemonic:"<strong>Step by Step</strong> — a choreographer for your services. Step 1: Lambda dances. Step 2: DynamoDB spins. Step 3: SNS takes a bow. Each step triggers the next." },
+
+  // ---- COST MANAGEMENT ----
+  { cat:"Cost Management", icon:"💰", name:"AWS Budgets", abbr:"Budgets",
+    func:"Set custom cost and usage budgets. Get alerts when you exceed or forecast to exceed your threshold.",
+    mnemonic:"<strong>Your AWS Allowance</strong> — set a spending limit like a parent gives a kid an allowance. Go over? You get an alert (grounded!)." },
+  { cat:"Cost Management", icon:"💰", name:"AWS Cost & Usage Report", abbr:"CUR",
+    func:"The most detailed cost dataset. Breaks down costs by service, region, tag, etc. Delivered to S3.",
+    mnemonic:"<strong>The Receipt</strong> — after shopping at the AWS store, CUR is the insanely detailed receipt that lists every item, tax, and discount. Stored in S3." },
+  { cat:"Cost Management", icon:"💰", name:"AWS Cost Explorer", abbr:"Cost Explorer",
+    func:"Visualize, understand, and forecast your AWS costs over time with interactive graphs and filters.",
+    mnemonic:"<strong>Explorer with a Magnifying Glass</strong> — an explorer walks through your billing jungle with a magnifying glass, showing you where every dollar went via charts." },
+  { cat:"Cost Management", icon:"💰", name:"Savings Plans", abbr:"Savings Plans",
+    func:"Commit to consistent compute usage ($/hr) for 1 or 3 years and get significant discounts vs on-demand.",
+    mnemonic:"<strong>Gym Membership</strong> — commit to going to the gym (using compute) for 1–3 years and get a massive discount vs paying per visit (on-demand)." },
+
+  // ---- COMPUTE ----
+  { cat:"Compute", icon:"⚡", name:"Amazon EC2", abbr:"EC2",
+    func:"Virtual servers in the cloud. Customizable CPU, memory, storage, and network. The workhorse of AWS.",
+    mnemonic:"<strong>EC2 = Electronic Computer #2</strong> — your second computer, a virtual twin of your physical server in the cloud. Infinite configurations.",
+    story:"A factory where you can order any type of machine: tiny, huge, GPU-powered, memory-optimized. Arrives in seconds. That's EC2." },
+  { cat:"Compute", icon:"⚡", name:"EC2 Auto Scaling", abbr:"Auto Scaling",
+    func:"Automatically add/remove EC2 instances based on demand. Scale up when busy, scale down when quiet.",
+    mnemonic:"<strong>Automatic Accordion</strong> — your fleet of servers expands and contracts like an accordion, playing to the rhythm of traffic." },
+  { cat:"Compute", icon:"⚡", name:"AWS Batch", abbr:"Batch",
+    func:"Run hundreds of thousands of batch computing jobs. Automatically provisions the optimal compute resources.",
+    mnemonic:"<strong>Batch of Cookies</strong> — you dump 10,000 cookie recipes (jobs) into the oven (Batch). It figures out how many ovens (instances) to use and bakes them all efficiently." },
+  { cat:"Compute", icon:"⚡", name:"AWS Elastic Beanstalk", abbr:"Beanstalk",
+    func:"PaaS: upload your code, Beanstalk handles servers, load balancing, scaling, and monitoring automatically.",
+    mnemonic:"<strong>Jack's Magic Beanstalk</strong> — throw a bean (code) and the infrastructure grows by itself overnight. Zero manual setup.",
+    story:"Plant a seed, go to sleep. Wake up: servers, load balancers, and databases grew from the beanstalk like leaves. You just write code." },
+  { cat:"Compute", icon:"⚡", name:"AWS Outposts", abbr:"Outposts",
+    func:"AWS infrastructure and services delivered to your on-premises facility. A physical AWS rack in your data center.",
+    mnemonic:"<strong>Military Outpost</strong> — AWS sends a physical outpost (rack of servers) to your territory (data center). You get AWS services locally, behind your own walls." },
+  { cat:"Compute", icon:"⚡", name:"AWS Serverless Application Repository", abbr:"SAR",
+    func:"Discover, deploy, and publish serverless applications. A marketplace for reusable Lambda-based apps.",
+    mnemonic:"<strong>App Store for Serverless</strong> — like an app store, but every app is a serverless template you can deploy in one click." },
+  { cat:"Compute", icon:"⚡", name:"VMware Cloud on AWS", abbr:"VMware on AWS",
+    func:"Run VMware workloads on AWS infrastructure. Migrate existing VMware environments to the cloud seamlessly.",
+    mnemonic:"<strong>VMware gets a Cloud Apartment</strong> — VMware moved out of your basement (data center) and into a fancy cloud apartment (AWS), but it still acts exactly the same." },
+  { cat:"Compute", icon:"⚡", name:"AWS Wavelength", abbr:"Wavelength",
+    func:"Deploy apps at the edge of 5G networks for ultra-low latency to mobile users.",
+    mnemonic:"<strong>Wavelength = 5G Radio Waves</strong> — your app rides the 5G radio wave, sitting at the cell tower edge so mobile users get instant response." },
+
+  // ---- CONTAINERS ----
+  { cat:"Containers", icon:"📦", name:"Amazon ECR", abbr:"ECR",
+    func:"Fully managed Docker container image registry. Store, manage, and deploy container images.",
+    mnemonic:"<strong>ECR = Every Container's Registry</strong> — a warehouse shelf where all your Docker images are neatly labeled and stored, ready to be pulled." },
+  { cat:"Containers", icon:"📦", name:"Amazon ECS", abbr:"ECS",
+    func:"Fully managed container orchestration service. Run Docker containers on AWS-managed infrastructure.",
+    mnemonic:"<strong>ECS = EC2 Container Service</strong> — a ship captain (ECS) managing a fleet of shipping containers (Docker). Tells each container where to go." },
+  { cat:"Containers", icon:"📦", name:"Amazon ECS Anywhere", abbr:"ECS Anywhere",
+    func:"Run ECS on your own on-premises infrastructure. Manage containers outside AWS with ECS control plane.",
+    mnemonic:"<strong>ECS...Anywhere!</strong> — the ship captain can now manage containers on your own docks (on-prem), not just AWS ports." },
+  { cat:"Containers", icon:"📦", name:"Amazon EKS", abbr:"EKS",
+    func:"Managed Kubernetes service. Run Kubernetes on AWS without installing and operating your own control plane.",
+    mnemonic:"<strong>EKS = Elastic Kubernetes Service</strong> — Kubernetes is the orchestra conductor. EKS gives the conductor a managed concert hall so you don't build the venue yourself." },
+  { cat:"Containers", icon:"📦", name:"Amazon EKS Anywhere", abbr:"EKS Anywhere",
+    func:"Run EKS on your own on-premises hardware using the same Kubernetes tooling.",
+    mnemonic:"<strong>Kubernetes concert — any venue</strong> — same conductor (EKS), but now performing at your local theater (on-prem) too." },
+  { cat:"Containers", icon:"📦", name:"Amazon EKS Distro", abbr:"EKS-D",
+    func:"The same Kubernetes distribution used by EKS, available for you to self-manage anywhere.",
+    mnemonic:"<strong>EKS Distribution = DIY Kit</strong> — Amazon gives you the same Kubernetes recipe (distro) they use, but you bake it yourself on your own hardware." },
+
+  // ---- DATABASE ----
+  { cat:"Database", icon:"🗃️", name:"Amazon Aurora", abbr:"Aurora",
+    func:"High-performance managed relational DB. MySQL/PostgreSQL compatible. 5x faster than MySQL, auto-scales storage up to 128TB.",
+    mnemonic:"<strong>Aurora Borealis (Northern Lights)</strong> — dazzlingly fast and beautiful. A MySQL/PostgreSQL superstar that's 5x faster and auto-grows its storage like a spectacular light show." },
+  { cat:"Database", icon:"🗃️", name:"Aurora Serverless", abbr:"Aurora Serverless",
+    func:"On-demand, auto-scaling Aurora. Starts/stops automatically. Pay per second. Great for unpredictable workloads.",
+    mnemonic:"<strong>Northern Lights that appear only when you look up</strong> — Aurora Serverless spins up only when queries arrive, then vanishes. Perfect for sporadic workloads." },
+  { cat:"Database", icon:"🗃️", name:"Amazon DocumentDB", abbr:"DocumentDB",
+    func:"Managed document database compatible with MongoDB. JSON document storage at scale.",
+    mnemonic:"<strong>Document + DB = filing cabinet for JSON</strong> — MongoDB files a change-of-address to AWS. Same API, but managed. Stores JSON documents like a smart filing cabinet." },
+  { cat:"Database", icon:"🗃️", name:"Amazon DynamoDB", abbr:"DynamoDB",
+    func:"Serverless NoSQL database. Key-value and document store. Single-digit millisecond latency at any scale.",
+    mnemonic:"<strong>Dynamo = explosive speed</strong> — shout a key, get a value in milliseconds. No tables, no joins, just blazing key-value lookups. Scales to infinity." },
+  { cat:"Database", icon:"🗃️", name:"Amazon ElastiCache", abbr:"ElastiCache",
+    func:"Managed in-memory caching (Redis or Memcached). Microsecond reads. Great for session stores and real-time leaderboards.",
+    mnemonic:"<strong>Elastic + Cache = stretchy sticky notes</strong> — stick frequently-used answers on a sticky note (cache) right in front of you. No need to walk to the filing cabinet (database) every time." },
+  { cat:"Database", icon:"🗃️", name:"Amazon Keyspaces", abbr:"Keyspaces",
+    func:"Managed Apache Cassandra-compatible database. Wide-column NoSQL at scale.",
+    mnemonic:"<strong>Key + Spaces = keys in wide-open spaces</strong> — Cassandra's data model is wide columns, like a spreadsheet with thousands of columns stretching to the horizon." },
+  { cat:"Database", icon:"🗃️", name:"Amazon Neptune", abbr:"Neptune",
+    func:"Managed graph database. Optimized for storing billions of relationships (social networks, knowledge graphs, fraud detection).",
+    mnemonic:"<strong>Neptune the god of the sea</strong> — a vast ocean of connected nodes. Every fish (node) is connected to other fish by currents (edges). Perfect for social networks and fraud webs." },
+  { cat:"Database", icon:"🗃️", name:"Amazon QLDB", abbr:"QLDB",
+    func:"Quantum Ledger Database. Immutable, cryptographically verifiable transaction log. Like a blockchain ledger but centralized.",
+    mnemonic:"<strong>QLDB = Quantum Ledger = unhackable receipt book</strong> — every transaction is written in permanent ink. You can never erase or alter an entry. Cryptographic proof included." },
+  { cat:"Database", icon:"🗃️", name:"Amazon RDS", abbr:"RDS",
+    func:"Managed relational databases: MySQL, PostgreSQL, Oracle, SQL Server, MariaDB, Aurora. AWS handles patching, backups, and scaling.",
+    mnemonic:"<strong>RDS = Rows and Data, Structured</strong> — the reliable librarian who manages your SQL books (databases). You choose the flavor; AWS handles maintenance." },
+  { cat:"Database", icon:"🗃️", name:"Amazon Redshift", abbr:"Redshift (DB)",
+    func:"Petabyte-scale data warehouse (also in Analytics). Columnar storage, massively parallel SQL queries.",
+    mnemonic:"<strong>See Analytics entry</strong> — Redshift appears in both Database and Analytics. Remember: warehouse for huge analytical queries." },
+  { cat:"Database", icon:"🗃️", name:"Amazon Timestream", abbr:"Timestream",
+    func:"Serverless time-series database. Optimized for IoT sensor data, application metrics, and time-ordered events.",
+    mnemonic:"<strong>Time + Stream = river of timestamps</strong> — data points floating down a river in chronological order. \"At 3:01 PM the temperature was 72°F.\" IoT and metrics love this." },
+
+  // ---- DEVELOPER TOOLS ----
+  { cat:"Developer Tools", icon:"🛠️", name:"AWS X-Ray", abbr:"X-Ray",
+    func:"Traces requests through your distributed application. Visualizes latency, errors, and service dependencies like an X-ray of your architecture.",
+    mnemonic:"<strong>X-Ray vision for your app</strong> — like a doctor X-raying a patient, X-Ray reveals the skeleton of your microservices: where requests travel, where they slow down, and where they break." },
+
+  // ---- FRONT-END & MOBILE ----
+  { cat:"Front-End & Mobile", icon:"📱", name:"AWS Amplify", abbr:"Amplify",
+    func:"Full-stack development platform for web and mobile apps. Provides auth, APIs, storage, and hosting out of the box.",
+    mnemonic:"<strong>Amplify = amplifier for your app</strong> — plug your app into an amplifier and it instantly gets authentication, APIs, storage, and hosting. Volume turned up to 11." },
+  { cat:"Front-End & Mobile", icon:"📱", name:"Amazon API Gateway", abbr:"API Gateway",
+    func:"Create, publish, maintain, and secure REST/WebSocket APIs at any scale. The front door for application logic.",
+    mnemonic:"<strong>Hotel Reception Desk</strong> — every external request walks up to the reception desk (API Gateway). Credentials checked, then routed to the right room (backend service)." },
+  { cat:"Front-End & Mobile", icon:"📱", name:"AWS Device Farm", abbr:"Device Farm",
+    func:"Test mobile and web apps on real devices in the cloud. Hundreds of physical phones and tablets available.",
+    mnemonic:"<strong>A farm full of phones</strong> — picture a farm where instead of cows, there are hundreds of real iPhones and Androids grazing. You test your app on all of them simultaneously." },
+  { cat:"Front-End & Mobile", icon:"📱", name:"Amazon Pinpoint", abbr:"Pinpoint",
+    func:"Targeted push notifications, emails, SMS, and voice messages for marketing campaigns and transactional communications.",
+    mnemonic:"<strong>Pinpoint = precision targeting</strong> — throw a dart at a map and hit exactly the users you want with personalized messages. Email, SMS, push — all pinpoint accurate." },
+
+  // ---- MACHINE LEARNING ----
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Comprehend", abbr:"Comprehend",
+    func:"NLP service that finds insights and sentiment in text. Detects entities, key phrases, language, and sentiment.",
+    mnemonic:"<strong>Comprehend = understand text</strong> — feeds text into a brain that comprehends it: \"This review is positive, mentions 'battery life', written in English.\"" },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Forecast", abbr:"Forecast",
+    func:"Time-series forecasting service. Predicts future values (sales, demand, traffic) using ML.",
+    mnemonic:"<strong>Weather Forecast for data</strong> — instead of predicting rain, it predicts sales next Tuesday. Feed it history, it gives you the future." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Fraud Detector", abbr:"Fraud Detector",
+    func:"Identifies potentially fraudulent online activities using ML models trained on your data.",
+    mnemonic:"<strong>Fraud Detective</strong> — a detective with a magnifying glass examining every transaction: \"This credit card purchase at 3AM in a different country? Suspicious!\"" },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Kendra", abbr:"Kendra",
+    func:"ML-powered enterprise search service. Answers natural language questions from your documents.",
+    mnemonic:"<strong>Kendra the Know-It-All</strong> — ask Kendra a question in plain English about your company docs, and she finds the exact paragraph with the answer." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Lex", abbr:"Lex",
+    func:"Build conversational chatbots with voice and text. The same tech behind Alexa.",
+    mnemonic:"<strong>Lex Luthor talks a lot</strong> — Lex powers chatbots. It's Alexa's brain, available for your own apps. \"Lex, book me a flight.\"" },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Polly", abbr:"Polly",
+    func:"Text-to-speech service. Turns text into lifelike speech in dozens of languages.",
+    mnemonic:"<strong>Polly the Parrot</strong> — \"Polly want a cracker?\" Polly reads text aloud in realistic human voices. Text in, speech out." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Rekognition", abbr:"Rekognition",
+    func:"Image and video analysis. Detects objects, faces, text, scenes, and inappropriate content.",
+    mnemonic:"<strong>Recognition with a K</strong> — shows a photo to Rekognition: \"I see 2 faces, a dog, a car, and text saying 'STOP'.\" Visual recognition AI." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon SageMaker", abbr:"SageMaker",
+    func:"Fully managed ML platform. Build, train, and deploy ML models at scale.",
+    mnemonic:"<strong>Sage + Maker = wisdom maker</strong> — a wise sage builds ML models. SageMaker is the complete workshop: build, train, test, deploy — all in one place." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Textract", abbr:"Textract",
+    func:"Extracts text, handwriting, and data from scanned documents. OCR on steroids.",
+    mnemonic:"<strong>Text + Extract = pull text out</strong> — feed Textract a photo of a receipt, and it extracts every word, number, and table. Like OCR with X-ray vision." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Transcribe", abbr:"Transcribe",
+    func:"Automatic speech-to-text. Converts audio into accurate text transcripts.",
+    mnemonic:"<strong>Transcribe = write down what you hear</strong> — a court stenographer for your audio. Speak into the mic, get a text transcript." },
+  { cat:"Machine Learning", icon:"🤖", name:"Amazon Translate", abbr:"Translate",
+    func:"Neural machine translation. Translates text between languages in real time.",
+    mnemonic:"<strong>Google Translate, but AWS</strong> — English in, Spanish out. Real-time neural translation for your apps." },
+
+  // ---- MANAGEMENT & GOVERNANCE ----
+  { cat:"Management & Governance", icon:"📋", name:"AWS Auto Scaling", abbr:"AWS Auto Scaling",
+    func:"Unified scaling for multiple resources (EC2, DynamoDB, ECS, Aurora). Creates scaling plans across services.",
+    mnemonic:"<strong>Master Scaler</strong> — while EC2 Auto Scaling only scales EC2, AWS Auto Scaling is the orchestra conductor that scales EC2, DynamoDB tables, ECS tasks, and more — all together." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS CloudFormation", abbr:"CloudFormation",
+    func:"Infrastructure as Code. Define entire AWS environments in JSON/YAML templates. Deploy, update, delete as stacks.",
+    mnemonic:"<strong>Cloud + Formation = forming clouds from blueprints</strong> — hand AWS a blueprint (template) and an entire infrastructure assembles in formation, like soldiers on command." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS CloudTrail", abbr:"CloudTrail",
+    func:"Logs every API call in your AWS account. Who did what, when, and from where. Essential for auditing.",
+    mnemonic:"<strong>Breadcrumb Trail in the cloud</strong> — every API call leaves a breadcrumb. CloudTrail follows the trail: \"Bob deleted the database at 3:47 PM from IP 1.2.3.4.\"" },
+  { cat:"Management & Governance", icon:"📋", name:"Amazon CloudWatch", abbr:"CloudWatch",
+    func:"Monitoring and observability. Collects metrics, logs, and events. Sets alarms and triggers automated actions.",
+    mnemonic:"<strong>Security Guard watching monitors</strong> — CloudWatch stares at dashboards 24/7. CPU hits 90%? Alarm goes off. Can auto-trigger scaling or SNS alerts." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS CLI", abbr:"CLI",
+    func:"Command Line Interface to manage AWS services. Script and automate AWS operations from your terminal.",
+    mnemonic:"<strong>Command Line = Terminal Warrior</strong> — instead of clicking in the console, you type commands like a hacker: <code>aws s3 ls</code>. Faster, scriptable, automatable." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Compute Optimizer", abbr:"Compute Optimizer",
+    func:"ML-powered recommendations for right-sizing EC2, Lambda, EBS, and ECS. Finds over-provisioned resources.",
+    mnemonic:"<strong>Personal Trainer for Compute</strong> — \"Your EC2 is too buff for this workload. Downsize to a t3.medium and save 40%.\" ML-powered right-sizing advice." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Config", abbr:"Config",
+    func:"Tracks resource configurations over time. Evaluates compliance against desired rules. Alerts on drift.",
+    mnemonic:"<strong>Compliance Cop</strong> — set the rules (ideal config). Config is the strict teacher checking homework. If anything drifts from the ideal, you get flagged." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Control Tower", abbr:"Control Tower",
+    func:"Sets up and governs a multi-account AWS environment. Automates account creation with guardrails and best practices.",
+    mnemonic:"<strong>Airport Control Tower</strong> — a control tower overseeing all runways (AWS accounts). It sets guardrails so no plane (account) goes off course. Landing zone = your multi-account setup." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS License Manager", abbr:"License Manager",
+    func:"Track and manage software licenses (Oracle, Windows, etc.) across AWS and on-premises.",
+    mnemonic:"<strong>License Plate Registry</strong> — every software license gets a plate. License Manager tracks which cars (instances) are using which plates and flags violations." },
+  { cat:"Management & Governance", icon:"📋", name:"Amazon Managed Grafana", abbr:"Managed Grafana",
+    func:"Managed Grafana dashboards for visualizing metrics from CloudWatch, Prometheus, X-Ray, and more.",
+    mnemonic:"<strong>Grafana = Graph + Nirvana</strong> — beautiful, managed dashboards that visualize all your metrics. The nirvana of monitoring UIs." },
+  { cat:"Management & Governance", icon:"📋", name:"Amazon Managed Prometheus", abbr:"Managed Prometheus",
+    func:"Managed Prometheus monitoring for container metrics. Compatible with PromQL. Scalable and secure.",
+    mnemonic:"<strong>Prometheus stole fire (metrics) from the gods</strong> — collects container metrics and stores them. Managed by AWS so you don't run your own Prometheus server." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Management Console", abbr:"Console",
+    func:"The web-based GUI for managing all AWS services. Point-and-click interface.",
+    mnemonic:"<strong>The Dashboard</strong> — the car dashboard where you see everything and push buttons. The visual, click-through way to manage AWS." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Organizations", abbr:"Organizations",
+    func:"Centrally manage multiple AWS accounts. Consolidated billing, SCPs (Service Control Policies), and OU hierarchy.",
+    mnemonic:"<strong>Corporate HQ</strong> — a parent company (management account) overseeing subsidiaries (member accounts). Sets rules (SCPs), groups them into departments (OUs), pays one bill." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Personal Health Dashboard", abbr:"PHD",
+    func:"Personalized view of AWS service health events that affect YOUR resources. Proactive alerts.",
+    mnemonic:"<strong>Your Doctor's Dashboard</strong> — a doctor's screen showing YOUR health, not everyone's. \"Your EC2 in us-east-1 may be affected by a maintenance event tomorrow.\"" },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Proton", abbr:"Proton",
+    func:"Managed deployment service for container and serverless applications. Platform teams define templates; developers deploy.",
+    mnemonic:"<strong>Proton = atomic particle powering deployment</strong> — platform engineers build the reactor (templates), developers just press the button (deploy). Standardized, managed deployments." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Service Catalog", abbr:"Service Catalog",
+    func:"Create and manage approved IT service catalogs. Users self-serve pre-approved CloudFormation products.",
+    mnemonic:"<strong>Restaurant Menu</strong> — IT creates the menu (catalog) of approved items. Developers order from the menu (self-service) without needing to build from scratch." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Systems Manager", abbr:"SSM",
+    func:"Operational hub for managing EC2 and on-prem servers. Patch management, parameter store, run commands, session manager.",
+    mnemonic:"<strong>Swiss Army Knife</strong> — SSM does everything: patch servers, store secrets, run remote commands, manage inventory. The ultimate ops multi-tool." },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Trusted Advisor", abbr:"Trusted Advisor",
+    func:"Automated best-practice checks across cost, security, performance, fault tolerance, and service limits.",
+    mnemonic:"<strong>Your AWS Financial/Security Advisor</strong> — a wise consultant that reviews your account and says: \"You're overspending here, this S3 bucket is public, and you're hitting service limits.\"" },
+  { cat:"Management & Governance", icon:"📋", name:"AWS Well-Architected Tool", abbr:"WA Tool",
+    func:"Reviews your workloads against AWS best practices (the 6 pillars). Generates improvement plans.",
+    mnemonic:"<strong>Building Inspector</strong> — inspects your cloud architecture against 6 pillars (security, reliability, performance, cost, operational excellence, sustainability) and hands you a report." },
+
+  // ---- MEDIA SERVICES ----
+  { cat:"Media Services", icon:"🎬", name:"Amazon Elastic Transcoder", abbr:"Elastic Transcoder",
+    func:"Converts media files from one format to another (e.g., MP4 to WebM). Scalable, cloud-based media transcoding.",
+    mnemonic:"<strong>Universal Video Converter</strong> — feed it a video in any format, it spits it out in the format you need. Like a universal power adapter, but for video files." },
+  { cat:"Media Services", icon:"🎬", name:"Amazon Kinesis Video Streams", abbr:"Kinesis Video",
+    func:"Captures, processes, and stores video streams from millions of devices for analytics and ML.",
+    mnemonic:"<strong>Kinesis, but for CCTV</strong> — millions of cameras stream video into Kinesis Video Streams. Analyze faces, detect motion, run ML — all in real time." },
+
+  // ---- MIGRATION & TRANSFER ----
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS Application Discovery Service", abbr:"ADS",
+    func:"Discovers on-premises servers, databases, and dependencies to plan cloud migration.",
+    mnemonic:"<strong>Treasure Map Maker</strong> — before migrating, ADS explores your data center and draws a map of everything: servers, connections, dependencies. Now you know what to move." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS Application Migration Service", abbr:"MGN",
+    func:"Lift-and-shift migration of servers to AWS. Formerly CloudEndure Migration. Automates replication and cutover.",
+    mnemonic:"<strong>Moving Truck (Lift & Shift)</strong> — picks up your server exactly as-is and drops it in AWS. No remodeling needed. Lift, shift, done." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS DMS", abbr:"DMS",
+    func:"Database Migration Service. Migrate databases to AWS with minimal downtime. Supports homogeneous and heterogeneous migrations.",
+    mnemonic:"<strong>DMS = Database Moving Service</strong> — a specialized mover for databases. Can even convert Oracle → Aurora while moving (heterogeneous). Minimal downtime." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS DataSync", abbr:"DataSync",
+    func:"Automated, accelerated data transfer between on-premises storage and AWS (S3, EFS, FSx). Up to 10x faster than scripts.",
+    mnemonic:"<strong>Data + Sync = turbo file sync</strong> — like Dropbox sync on steroids. Copies data from your NAS to S3/EFS 10x faster than DIY scripts." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS Migration Hub", abbr:"Migration Hub",
+    func:"Central dashboard to track migration progress across multiple AWS migration tools.",
+    mnemonic:"<strong>Airport Departures Board</strong> — one big screen showing all your migrations: \"Oracle DB → RDS: 73% complete. Web server → EC2: Done.\" Central tracking." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS SMS", abbr:"SMS (Server)",
+    func:"Server Migration Service. Automates incremental replication of on-premises servers to AWS.",
+    mnemonic:"<strong>SMS = Server Moving Service</strong> — don't confuse with text messages! This SMS moves servers incrementally, replicating changes until you're ready to cut over." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS Snow Family", abbr:"Snow Family",
+    func:"Physical devices (Snowcone, Snowball, Snowmobile) for offline data transfer when internet is too slow. Petabyte to exabyte scale.",
+    mnemonic:"<strong>Snow = cold, physical boxes</strong> — Snowcone (backpack-sized), Snowball (suitcase-sized), Snowmobile (a literal truck). AWS ships them to you. Fill with data, ship back. For when the internet isn't big enough.",
+    story:"Your data is too big for the internet highway. So AWS sends a fleet of snow trucks. Small job? Snowcone. Medium? Snowball. Petabytes? A literal 18-wheeler (Snowmobile) parks at your door." },
+  { cat:"Migration & Transfer", icon:"🚚", name:"AWS Transfer Family", abbr:"Transfer Family",
+    func:"Managed SFTP, FTPS, and FTP transfers directly into/out of S3 and EFS.",
+    mnemonic:"<strong>FTP's Modern Family</strong> — old-school FTP clients connect to AWS Transfer Family, but files land directly in S3. Legacy protocol, cloud destination." },
+
+  // ---- NETWORKING & CONTENT DELIVERY ----
+  { cat:"Networking", icon:"🌐", name:"Amazon CloudFront", abbr:"CloudFront",
+    func:"Global CDN. Caches content at 400+ edge locations worldwide. Low latency, DDoS protection via Shield integration.",
+    mnemonic:"<strong>Cloud's Front Door</strong> — copies of your content at front doors worldwide. Users always find the nearest door. Pizza chain with kitchens in every neighborhood." },
+  { cat:"Networking", icon:"🌐", name:"AWS Direct Connect", abbr:"Direct Connect",
+    func:"Dedicated private network connection from your premises to AWS. Bypasses the public internet for consistent performance.",
+    mnemonic:"<strong>Private Red Phone</strong> — a dedicated phone line between you and AWS. No internet middlemen, no eavesdropping. Private tunnel, consistent speed." },
+  { cat:"Networking", icon:"🌐", name:"Elastic Load Balancing", abbr:"ELB",
+    func:"Distributes incoming traffic across targets (EC2, containers, IPs). Types: ALB (HTTP), NLB (TCP/UDP), GLB (third-party), CLB (legacy).",
+    mnemonic:"<strong>Traffic Cop</strong> — directs cars (requests) to open lanes (servers). ALB = smart cop (HTTP routing), NLB = speed cop (ultra-fast TCP), GLB = third-party cop." },
+  { cat:"Networking", icon:"🌐", name:"AWS Global Accelerator", abbr:"Global Accelerator",
+    func:"Routes traffic through AWS global network instead of the public internet. Two static anycast IPs. Improves availability and performance.",
+    mnemonic:"<strong>Global Express Lane</strong> — instead of driving on city roads (public internet), Global Accelerator puts your traffic on the AWS private highway. 2 static IP addresses as the on-ramp." },
+  { cat:"Networking", icon:"🌐", name:"AWS PrivateLink", abbr:"PrivateLink",
+    func:"Privately access AWS services or your own services without traversing the public internet. Creates VPC endpoints.",
+    mnemonic:"<strong>Private Link = secret tunnel</strong> — a hidden underground passage from your VPC directly to an AWS service (like S3). Traffic never touches the public internet." },
+  { cat:"Networking", icon:"🌐", name:"Amazon Route 53", abbr:"Route 53",
+    func:"DNS service. Domain registration, DNS routing (simple, weighted, latency, failover, geolocation), and health checks.",
+    mnemonic:"<strong>Route 66 of the internet (port 53)</strong> — the highway system that routes domain names to IP addresses. Supports smart routing: send US users to us-east, EU users to eu-west." },
+  { cat:"Networking", icon:"🌐", name:"AWS Transit Gateway", abbr:"TGW",
+    func:"Hub-and-spoke network architecture. Connect thousands of VPCs and on-prem networks through a single gateway.",
+    mnemonic:"<strong>Airport Hub</strong> — instead of direct flights between every city (VPC peering = messy), everyone connects through one hub airport (Transit Gateway). Clean, scalable." },
+  { cat:"Networking", icon:"🌐", name:"Amazon VPC", abbr:"VPC",
+    func:"Your isolated virtual network in AWS. Subnets, route tables, internet gateways, NAT gateways, security groups, NACLs.",
+    mnemonic:"<strong>Very Private Castle</strong> — your walled castle in the cloud. Subnets are rooms, route tables are hallways, security groups are guards at each door, NACLs guard the castle walls." },
+  { cat:"Networking", icon:"🌐", name:"AWS VPN", abbr:"VPN",
+    func:"Encrypted tunnel between your on-premises network and AWS VPC over the public internet. Site-to-Site and Client VPN.",
+    mnemonic:"<strong>Secret Encrypted Tunnel</strong> — a VPN is a disguised tunnel through the public internet. Everything inside is encrypted. Cheaper than Direct Connect but rides the public road." },
+
+  // ---- SECURITY, IDENTITY & COMPLIANCE ----
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Artifact", abbr:"Artifact",
+    func:"Self-service portal for AWS compliance reports and agreements (SOC, PCI, HIPAA, etc.).",
+    mnemonic:"<strong>Museum Artifact = proof of history</strong> — Artifact is the museum where you pick up official compliance certificates. \"Here's your SOC 2 report, signed and sealed.\"" },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Audit Manager", abbr:"Audit Manager",
+    func:"Continuously audits your AWS usage to simplify compliance. Maps controls to frameworks (GDPR, HIPAA, etc.).",
+    mnemonic:"<strong>Internal Auditor</strong> — a tireless auditor walking through your AWS account with a checklist, comparing everything against compliance frameworks like GDPR and HIPAA." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Certificate Manager", abbr:"ACM",
+    func:"Provision, manage, and deploy SSL/TLS certificates for free. Auto-renews certificates on AWS resources.",
+    mnemonic:"<strong>ACM = Automatic Certificate Machine</strong> — need HTTPS? ACM hands you a free SSL certificate and auto-renews it. No more expired certs!" },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS CloudHSM", abbr:"CloudHSM",
+    func:"Dedicated hardware security module (HSM) in the cloud. You control the encryption keys at a hardware level. FIPS 140-2 Level 3.",
+    mnemonic:"<strong>Cloud Hardware Safe Module</strong> — KMS uses shared hardware. CloudHSM gives you your OWN physical safe (HSM) in AWS. Full control, FIPS certified." },
+  { cat:"Security & Identity", icon:"🔐", name:"Amazon Cognito", abbr:"Cognito",
+    func:"User sign-up, sign-in, and access control for web/mobile apps. User pools (auth) + Identity pools (AWS credentials for users).",
+    mnemonic:"<strong>Cognito = recognize (cognition)</strong> — Cognito recognizes your app's users. User Pools = who are you? (login). Identity Pools = what can you access? (AWS credentials)." },
+  { cat:"Security & Identity", icon:"🔐", name:"Amazon Detective", abbr:"Detective",
+    func:"Analyzes and visualizes security findings to identify root cause of threats. Uses ML on CloudTrail, VPC Flow Logs, GuardDuty.",
+    mnemonic:"<strong>Sherlock Holmes</strong> — GuardDuty finds a clue (threat). Detective investigates: follows the trail across logs, maps the attack, and identifies the culprit." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Directory Service", abbr:"Directory Service",
+    func:"Managed Microsoft Active Directory or Simple AD in the cloud. Integrates AWS with your existing AD domain.",
+    mnemonic:"<strong>Corporate Phone Book in the cloud</strong> — your company's Active Directory, but hosted in AWS. Same logins, same groups, no on-prem server needed." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Firewall Manager", abbr:"Firewall Manager",
+    func:"Centrally configure and manage firewall rules (WAF, Shield, Security Groups, Network Firewall) across accounts in Organizations.",
+    mnemonic:"<strong>Fire Chief</strong> — manages all the firewalls across all accounts from one place. Sets WAF rules, Shield protections, and Security Group policies organization-wide." },
+  { cat:"Security & Identity", icon:"🔐", name:"Amazon GuardDuty", abbr:"GuardDuty",
+    func:"Intelligent threat detection. Continuously monitors for malicious activity and unauthorized behavior using ML on logs.",
+    mnemonic:"<strong>Guard on Duty 24/7</strong> — a guard dog (ML) that sniffs CloudTrail, VPC Flow Logs, and DNS logs for intruders. Barks (alerts) when it detects something shady." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS IAM", abbr:"IAM",
+    func:"Identity and Access Management. Users, groups, roles, and policies that control who can access what in your AWS account.",
+    mnemonic:"<strong>I AM who I say I am</strong> — the bouncer at the club. \"I AM on the list\" → bouncer checks (authentication) → decides which rooms you enter (authorization). Users, groups, roles, policies." },
+  { cat:"Security & Identity", icon:"🔐", name:"Amazon Inspector", abbr:"Inspector",
+    func:"Automated security assessment. Scans EC2 instances, containers, and Lambda for software vulnerabilities and network exposure.",
+    mnemonic:"<strong>Building Inspector</strong> — walks through your EC2 instances checking for cracks (vulnerabilities): outdated packages, open ports, CVE exploits. Hands you a report." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS KMS", abbr:"KMS",
+    func:"Key Management Service. Creates and manages encryption keys. Integrates with almost every AWS service for data encryption.",
+    mnemonic:"<strong>Key Master Service</strong> — the Keymaker from The Matrix. Creates encryption keys for every door (service). Without his keys, your data stays locked." },
+  { cat:"Security & Identity", icon:"🔐", name:"Amazon Macie", abbr:"Macie",
+    func:"Uses ML to discover and protect sensitive data (PII, credit cards, etc.) in S3 buckets.",
+    mnemonic:"<strong>Macie the Data Sniffer Dog</strong> — sniffs through your S3 buckets looking for sensitive data: credit card numbers, SSNs, passwords. \"Found PII in bucket X!\"" },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Network Firewall", abbr:"Network Firewall",
+    func:"Managed network firewall for VPCs. Stateful inspection, intrusion prevention, and web filtering.",
+    mnemonic:"<strong>Castle Wall Firewall</strong> — while Security Groups guard individual doors, Network Firewall guards the entire castle wall (VPC perimeter). Deep packet inspection, IPS." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS RAM", abbr:"RAM",
+    func:"Resource Access Manager. Share AWS resources (subnets, Transit Gateways, etc.) across accounts without duplication.",
+    mnemonic:"<strong>RAM = Resource Access (shared) Manager</strong> — instead of copying resources into every account, RAM shares them like a library lending books across branches." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Secrets Manager", abbr:"Secrets Manager",
+    func:"Store, rotate, and retrieve secrets (database passwords, API keys). Automatic rotation support.",
+    mnemonic:"<strong>Secret Diary with Auto-Changing Passwords</strong> — stores all your secrets (passwords, API keys) in a vault. Even better: it auto-rotates them on a schedule so they're never stale." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Security Hub", abbr:"Security Hub",
+    func:"Central security dashboard. Aggregates findings from GuardDuty, Inspector, Macie, Firewall Manager, and third-party tools.",
+    mnemonic:"<strong>Security Command Center</strong> — all security alerts from all tools on one screen. GuardDuty, Inspector, Macie — everyone reports to the Hub." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS Shield", abbr:"Shield",
+    func:"DDoS protection. Shield Standard (free, automatic L3/L4). Shield Advanced (paid, L7, WAF integration, 24/7 DDoS response team).",
+    mnemonic:"<strong>Captain America's Shield</strong> — absorbs DDoS attacks. Standard shield is free and always on. Advanced shield has a personal bodyguard team (DDoS Response Team)." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS SSO / IAM Identity Center", abbr:"SSO",
+    func:"Single Sign-On. One login to access multiple AWS accounts and business applications.",
+    mnemonic:"<strong>One Key, All Doors</strong> — SSO gives you a master key. Sign in once and access every AWS account and app. No more remembering 50 passwords." },
+  { cat:"Security & Identity", icon:"🔐", name:"AWS WAF", abbr:"WAF",
+    func:"Web Application Firewall. Protects against common web exploits (SQL injection, XSS). Works with CloudFront, ALB, API Gateway.",
+    mnemonic:"<strong>WAF = Web App Force-field</strong> — an invisible force-field around your web app. SQL injection tries to enter? Bounced. XSS attack? Rejected. Sits in front of CloudFront/ALB." },
+
+  // ---- SERVERLESS ----
+  { cat:"Serverless", icon:"⚡", name:"AWS AppSync", abbr:"AppSync (SL)",
+    func:"Managed GraphQL (also in App Integration). Listed here because it's a key serverless building block.",
+    mnemonic:"<strong>See App Integration entry</strong> — AppSync appears in both. Remember: managed GraphQL, real-time sync, serverless." },
+  { cat:"Serverless", icon:"⚡", name:"AWS Fargate", abbr:"Fargate",
+    func:"Serverless compute for containers. Run ECS/EKS tasks without managing EC2 instances. Pay per task.",
+    mnemonic:"<strong>Far + Gate = containers fly far without baggage (servers)</strong> — Fargate runs your containers but hides the servers. You never see, touch, or manage an EC2 instance. Truly serverless containers." },
+  { cat:"Serverless", icon:"⚡", name:"AWS Lambda", abbr:"Lambda",
+    func:"Run code without servers. Event-driven, pay per invocation, max 15 min per execution. Supports Python, Node.js, Java, and more.",
+    mnemonic:"<strong>λ = Light on Demand</strong> — a lamp that turns on only when triggered (event), runs for up to 15 minutes, then shuts off. Zero cost when idle. The cornerstone of serverless.",
+    story:"A sleeping waiter. Customer claps (event). Waiter wakes, serves food (runs code), goes back to sleep. No idle salary. That's Lambda." },
+
+  // ---- STORAGE ----
+  { cat:"Storage", icon:"💾", name:"AWS Backup", abbr:"Backup",
+    func:"Centralized backup service. Automate and manage backups across EC2, EBS, RDS, DynamoDB, EFS, S3, and more.",
+    mnemonic:"<strong>One Backup to Rule Them All</strong> — instead of setting up backups per service, AWS Backup is the central vault that protects everything: EC2, RDS, DynamoDB, EFS — one policy." },
+  { cat:"Storage", icon:"💾", name:"Amazon EBS", abbr:"EBS",
+    func:"Persistent block storage volumes for EC2. Types: gp3 (general), io2 (high IOPS), st1 (throughput), sc1 (cold).",
+    mnemonic:"<strong>EC2's Hard Drive</strong> — EBS is the SSD/HDD strapped to your EC2 instance. Persists even when the instance stops. gp3 for general, io2 for databases, st1 for big data, sc1 for archives." },
+  { cat:"Storage", icon:"💾", name:"Amazon EFS", abbr:"EFS",
+    func:"Managed, elastic NFS file system. Shared across multiple EC2 instances simultaneously. Auto-scales, pay for what you use.",
+    mnemonic:"<strong>EFS = Elastic File Sharing</strong> — while EBS is a personal USB drive (one EC2), EFS is a shared network drive that all your EC2 instances can read/write simultaneously. Like a shared Google Drive." },
+  { cat:"Storage", icon:"💾", name:"Amazon FSx", abbr:"FSx",
+    func:"Managed file systems: FSx for Windows (SMB), FSx for Lustre (HPC), FSx for NetApp ONTAP, FSx for OpenZFS.",
+    mnemonic:"<strong>FSx = File System eXtended</strong> — need Windows file shares? FSx for Windows. High-performance computing? FSx for Lustre. It's the choose-your-own-adventure of managed file systems." },
+  { cat:"Storage", icon:"💾", name:"Amazon S3", abbr:"S3",
+    func:"Object storage with 11 nines durability. Tiers: Standard, IA, One Zone-IA, Intelligent-Tiering, Glacier, Glacier Deep Archive.",
+    mnemonic:"<strong>Super Simple Storage (3 S's)</strong> — infinite warehouse with numbered shelves. Toss any file in, get a URL back. Versioning, lifecycle rules, encryption — all built in.",
+    story:"An infinite warehouse. Standard shelf (fast access), IA shelf (cheaper, less frequent access), Glacier freezer (long-term archive), Deep Archive vault (cheapest, hours to retrieve)." },
+  { cat:"Storage", icon:"💾", name:"Amazon S3 Glacier", abbr:"Glacier",
+    func:"Long-term archival storage. Glacier Instant (ms retrieval), Flexible (min-hrs), Deep Archive (12-48hrs). Cheapest storage.",
+    mnemonic:"<strong>Frozen Archives</strong> — sealed in ice. Glacier Instant Retrieval (quick thaw), Flexible Retrieval (hours), Deep Archive (deepest freeze, 12–48 hours). Cheapest rent." },
+  { cat:"Storage", icon:"💾", name:"AWS Storage Gateway", abbr:"Storage Gateway",
+    func:"Hybrid cloud storage. Exposes cloud storage as local on-prem appliance. Types: File Gateway (NFS/SMB → S3), Volume Gateway, Tape Gateway.",
+    mnemonic:"<strong>Portal Between Worlds</strong> — your on-prem servers see what looks like a local file share, but behind the gateway, everything is actually in S3. Magic portal." },
+];
+
+// ======== BUILD UI ========
+const cats = [...new Set(DATA.map(d => d.cat))];
+const mastered = new Set(JSON.parse(localStorage.getItem('saa_mastered')||'[]'));
+
+function saveMastered() {
+  localStorage.setItem('saa_mastered', JSON.stringify([...mastered]));
+  updateProgress();
+}
+function updateProgress() {
+  const total = DATA.length;
+  const done = mastered.size;
+  document.getElementById('prog-fill').style.width = (done/total*100)+'%';
+  document.getElementById('prog-count').textContent = done + ' / ' + total;
+}
+
+function buildNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = `<button class="on" data-f="all">All (${DATA.length})</button>`;
+  cats.forEach(c => {
+    const n = DATA.filter(d=>d.cat===c).length;
+    nav.innerHTML += `<button data-f="${c}">${c} (${n})</button>`;
+  });
+  nav.innerHTML += `<button data-f="quiz">🧪 Quiz</button>`;
+  nav.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    nav.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    filterView(b.dataset.f);
+  }));
+}
+
+function buildContent() {
+  const el = document.getElementById('content');
+  let html = '';
+  cats.forEach(cat => {
+    const svcs = DATA.filter(d=>d.cat===cat);
+    const icon = svcs[0]?.icon || '📁';
+    html += `<div class="cat-section" data-cat="${cat}">
+      <div class="cat-head" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="cat-icon">${icon}</span>
+        <h2>${cat}</h2>
+        <span class="cnt">${svcs.length}</span>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="cat-body">`;
+    svcs.forEach(s => {
+      const id = s.abbr.replace(/[^a-zA-Z0-9]/g,'_');
+      const isDone = mastered.has(id);
+      html += `<div class="svc" data-search="${(s.name+' '+s.abbr+' '+s.func+' '+s.cat).toLowerCase()}" data-cat="${cat}">
+        <div class="svc-left">
+          <div class="svc-name">${s.name}</div>
+          <div class="svc-abbr">${s.abbr}</div>
+          <div class="svc-mastered ${isDone?'done':''}" data-id="${id}" onclick="toggleMastered(this)">
+            <span class="check">${isDone?'✓':''}</span> ${isDone?'Mastered':'Mark learned'}
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="func-box">${s.func}</div>
+          <div class="mem-box"><div class="lbl">🔗 Mnemonic</div><div class="txt">${s.mnemonic}</div></div>
+          ${s.story?`<div class="story-box"><div class="lbl">📖 Visual Story</div><div class="txt">${s.story}</div></div>`:''}
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function toggleMastered(el) {
+  const id = el.dataset.id;
+  if (mastered.has(id)) { mastered.delete(id); el.classList.remove('done'); el.querySelector('.check').textContent=''; el.childNodes[1].textContent=' Mark learned'; }
+  else { mastered.add(id); el.classList.add('done'); el.querySelector('.check').textContent='✓'; el.childNodes[1].textContent=' Mastered'; }
+  saveMastered();
+}
+
+function filterView(f) {
+  const content = document.getElementById('content');
+  const quiz = document.getElementById('quiz-wrap');
+  const search = document.querySelector('.search-wrap');
+  const prog = document.getElementById('progress-bar');
+  const master = document.querySelector('.master-story');
+
+  if (f === 'quiz') {
+    content.style.display='none'; quiz.classList.add('show'); search.style.display='none';
+    if(prog) prog.style.display='none';
+    return;
+  }
+  content.style.display=''; quiz.classList.remove('show'); search.style.display='';
+  if(prog) prog.style.display='';
+
+  document.querySelectorAll('.cat-section').forEach(s => {
+    s.style.display = (f==='all' || s.dataset.cat===f) ? '' : 'none';
+  });
+}
+
+// Search
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.svc').forEach(s => {
+    s.style.display = (!q || s.dataset.search.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(cat => {
+    const visible = cat.querySelectorAll('.svc[style=""], .svc:not([style])').length;
+    const anyVisible = [...cat.querySelectorAll('.svc')].some(s => s.style.display !== 'none');
+    cat.style.display = anyVisible ? '' : 'none';
+  });
+});
+
+// ======== QUIZ ========
+function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function startQuiz(n) {
+  const area = document.getElementById('quiz-area');
+  const pool = shuffle([...DATA]).slice(0, n);
+  let score = 0, answered = 0;
+
+  let html = '';
+  pool.forEach((item, i) => {
+    // Pick 3 wrong answers from other services
+    const wrongs = shuffle(DATA.filter(d=>d.name!==item.name)).slice(0,3).map(d=>d.name);
+    const opts = shuffle([item.name, ...wrongs]);
+    html += `<div class="quiz-card" id="qc-${i}">
+      <div class="quiz-q"><span class="qnum">${i+1}.</span> ${item.func}</div>
+      <div class="quiz-opts">
+        ${opts.map(o=>`<button class="quiz-opt" data-correct="${o===item.name}" onclick="checkQuiz(this,${i},${n})">${o}</button>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += `<div class="quiz-score-bar" id="quiz-score" style="display:none"></div>`;
+  html += `<div style="text-align:center;margin-top:10px"><button class="qbtn primary" onclick="startQuiz(${n})" style="display:none" id="quiz-retry">Try Again</button></div>`;
+  area.innerHTML = html;
+
+  window._quizState = { score:0, answered:0, total:n };
+}
+
+function checkQuiz(btn, idx, total) {
+  const card = document.getElementById('qc-'+idx);
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+
+  const isCorrect = btn.dataset.correct === 'true';
+  if (isCorrect) { btn.classList.add('right'); window._quizState.score++; }
+  else {
+    btn.classList.add('wrong');
+    card.querySelectorAll('.quiz-opt').forEach(o => { if(o.dataset.correct==='true') o.classList.add('right'); });
+  }
+  window._quizState.answered++;
+  if (window._quizState.answered === window._quizState.total) {
+    const s = window._quizState.score;
+    const t = window._quizState.total;
+    const pct = Math.round(s/t*100);
+    const msg = pct===100?'🎉 Perfect!':pct>=80?'👍 Great job!':pct>=60?'📖 Getting there!':'📚 Keep studying!';
+    document.getElementById('quiz-score').style.display='';
+    document.getElementById('quiz-score').textContent=`${s}/${t} (${pct}%) — ${msg}`;
+    document.getElementById('quiz-retry').style.display='';
+  }
+}
+
+// Init
+buildNav();
+buildContent();
+updateProgress();
+</script>
+</body>
+</html>
